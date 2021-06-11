@@ -29,6 +29,12 @@ public class App {
         stdin.nextLine();
       }
 
+      if (name.equals("multi")) {
+        Scanner otherScanner = new Scanner(System.in);
+        stdin.nextLine();
+        otherScanner.nextLine();
+      }
+
       System.out.println("Hello, daniel");
       stdin.close();
     }

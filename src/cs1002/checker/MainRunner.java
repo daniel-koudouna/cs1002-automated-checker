@@ -1,4 +1,4 @@
-package cs1002;
+package cs1002.checker;
 
 /**
  * Functional interface for running tests with some input.

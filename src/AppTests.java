@@ -1,7 +1,7 @@
 import org.junit.Test;
 
-import cs1002.FileTest;
-import cs1002.FileTestRunner;
+import cs1002.checker.FileTest;
+import cs1002.junit.FileTestRunner;
 
 public class AppTests {
   @Test
@@ -25,8 +25,14 @@ public class AppTests {
   }
 
   @Test
-  public void testScanners() {
+  public void testReadingInput() {
     FileTest.run(App::main, "eat");
+  }
+
+
+  @Test
+  public void testMultipleScanners() {
+    FileTest.run(App::main, "multi");
   }
 
   public static void main(String[] args) {

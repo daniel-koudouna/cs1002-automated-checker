@@ -1,4 +1,4 @@
-package cs1002;
+package cs1002.junit;
 
 public class TestSuiteDetails {
 

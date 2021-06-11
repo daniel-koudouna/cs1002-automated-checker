@@ -1,6 +1,5 @@
-package cs1002;
+package cs1002.checker;
 
-import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
@@ -12,8 +11,10 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.NoSuchElementException;
+
+import cs1002.security.EarlyExitException;
+import cs1002.security.TestSecurityManager;
 
 /**
  * Test class which runs an instance of a java application,
@@ -65,28 +66,25 @@ public class FileTest {
     ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     System.setOut(new PrintStream(buffer));
 
-    boolean exitEarly = false;
     String strace = null;
-    Class<? extends Exception> exceptionClass = null;
+    Exception caughtException = null;
 
     SecurityManager manager = System.getSecurityManager();
-    SecurityManager testManager = new TestSecurityManager();
+    SecurityManager testManager = new TestSecurityManager(manager);
     System.setSecurityManager(testManager);
     try {
       main.apply(null);
-    } catch (SecurityException se) {
-      exitEarly = true;
     } catch (Exception e) {
-      exceptionClass = e.getClass();
+      caughtException = e;
       System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
-      strace = "\t" + e.toString();
+      strace = e.toString();
       for (int i = 0; i < e.getStackTrace().length; i++) {
         StackTraceElement el = e.getStackTrace()[i];
         if (el.getClassName().equals(FileTest.class.getName())){
           break;
         }
         else {
-          strace += "\n\t\t at " + el.toString();
+          strace += "\n\t at " + el.toString();
         }
       }
     }
@@ -97,12 +95,24 @@ public class FileTest {
 
     OutputComparison diff = OutputComparison.from(expected, actual);
 
-    ExecutionResult result = new ExecutionResult(diff, strace, exceptionClass, exitEarly);
+    ExecutionResult result = new ExecutionResult(diff, strace, caughtException);
+
+    result.addAdvice(EarlyExitException.class, 
+    "Your program terminated early by calling System::exit or a similar method.", "");
+
+    result.addAdvice(e -> {
+      boolean isType = e.getClass() == NoSuchElementException.class;
+      StackTraceElement el = e.getStackTrace()[0];
+      boolean isMethod = el.getMethodName() == "nextLine";
+      boolean isClass = el.getClassName() == "java.util.Scanner";
+      return isType && isMethod && isClass;
+    }, 
+    "Your Scanner object ran out of input.", 
+    "Ensure that you are not reading more input in your Scanner than is necessary." +
+    "\nIn addition, ensure that you are only creating and using a single Scanner object.");
 
     result.checkOutputMatches();
     result.checkExceptions();
-    result.checkEarlyExit();
-
 
     if (result.hasFailed()) {
       fail(result.getDescription());

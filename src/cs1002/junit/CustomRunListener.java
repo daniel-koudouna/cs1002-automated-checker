@@ -1,8 +1,9 @@
-package cs1002;
+package cs1002.junit;
 
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
+
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.concurrent.TimeUnit;
@@ -57,7 +58,7 @@ public class CustomRunListener extends RunListener{
             testSuiteDetails = new TestSuiteDetails();
         }
         testSuiteDetails.setTestCaseName(failure.getDescription().getMethodName());
-        testSuiteDetails.setTestDescription(failure.getException().toString());
+        testSuiteDetails.setTestDescription(failure.getException().getMessage());
         testSuiteDetails.setTestStatus("Failed");
         map.put(failure.getDescription().getMethodName(),testSuiteDetails);
     }

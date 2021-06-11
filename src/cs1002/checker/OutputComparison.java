@@ -1,4 +1,4 @@
-package cs1002;
+package cs1002.checker;
 
 import java.util.List;
 import java.util.stream.Collectors;
