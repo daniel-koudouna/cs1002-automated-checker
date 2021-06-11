@@ -59,13 +59,14 @@ public class ExecutionResult {
   }
 
   private void addError(String title, String details, String advice) {
+    Settings settings = Settings.get();
     this.failed = true;
-    this.description += "- " + title + "\n";
+    this.description += "- " + settings.yellow(title) + "\n";
     for (String l : details.split("\n")) {
       this.description +="\t" + l + "\n";
     }
     for (String l : advice.split("\n")) {
-      this.description +="  " + l + "\n";
+      this.description +="  " + settings.cyan(l) + "\n";
     }
   }
 
@@ -83,18 +84,30 @@ public class ExecutionResult {
   }
 
   public void checkExceptions() {
+    Settings settings = Settings.get();
+    String hints = "";
+
+
     if (stackTrace != null) {
+      if (settings.showLinks) {
+        String name = exception.getClass().getName();
+        if (!name.startsWith("cs1002")) {
+          hints = "\nYou might be able to learn more about the exception by using a search engine:"
+          +"\n\n" + "https://duckduckgo.com/?q=site%3Astackoverflow.com+" + name; 
+        }
+      }
+
       for (AdviceCheck adviceCheck : exceptionAdvice) {
         if (adviceCheck.checkerFn.apply(this.exception)) {
           addError(adviceCheck.title
-          +"\n  The exception and stack trace is shown below:", stackTrace, adviceCheck.advice);
+          +"\n  The exception and stack trace is shown below:", stackTrace, adviceCheck.advice + hints);
           return;
         }
       }
       addError("There was an exception in your java program. See the stack trace below", 
       stackTrace, 
       "To diagnose the problem, find the first line which originates from your program." + 
-      "\nLines follow the format  Class.methodname(Filename.java::linenumber)");
+      "\nLines follow the format  Class.methodname(Filename.java::linenumber)" + hints);
     }
   }
 

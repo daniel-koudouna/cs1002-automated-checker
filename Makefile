@@ -22,7 +22,14 @@ run: compile
 	java -cp temp:lib/junit.jar:dist/testing.jar AppTests
 
 fancy: compile
-	java -cp temp:lib/junit.jar:dist/testing.jar AppTests --color
+	java -cp temp:lib/junit.jar:dist/testing.jar AppTests --color --overflow
+
+terse: compile
+	java -cp temp:lib/junit.jar:dist/testing.jar AppTests --color --terse
+
+full: compile
+	java -cp temp:lib/junit.jar:dist/testing.jar AppTests --full --fail-fast
+
 
 clean:
 	rm -rf temp

@@ -22,6 +22,7 @@ public class OutputComparison {
    * @return the first line where the outputs differ, or zero if they are identical.
    */
   public static OutputComparison from(String expected, String actual) {
+    Settings settings = Settings.get();
     StringBuilder lines = new StringBuilder();
 
     int maxWidth = expected.lines()
@@ -59,8 +60,25 @@ public class OutputComparison {
         ac = c.get(i);
       }
       String symbol = " ";
+      boolean diff = false;
+
       if (!exp.equals(ac)) {
-        symbol = "*";
+        diff = true;
+        symbol = settings.red("*");
+
+        if (settings.useColors) {
+          int col = 0;
+          for (int j = 0; j < Math.min(exp.length(), ac.length()); j++) {
+            if (exp.charAt(j) == ac.charAt(j)) {
+              col = j;
+            } else {
+              break;
+            }
+          }
+          exp = exp.substring(0, col) + settings.green(exp.substring(col));
+          ac = ac.substring(0, col) + settings.red(ac.substring(col));
+        }
+
         if (lineDiff == 0) {
           lineDiff = i + 1;
           expectedL = exp;
@@ -68,7 +86,13 @@ public class OutputComparison {
         }
       }
 
-      String formattedLine = String.format("%-" + (maxWidth + 2) + "s",exp);
+
+      int addedChars = 0;
+      if (diff && settings.useColors) {
+        addedChars += 9;
+      }
+
+      String formattedLine = String.format("%-" + (maxWidth + 2 + addedChars) + "s",exp);
       String formattedNum = String.format("%3d", (i+1));
       String line = symbol + " | " + formattedNum + " | " + formattedLine + " | " + ac;
       lines.append(line + "\n");

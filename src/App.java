@@ -35,7 +35,7 @@ public class App {
         otherScanner.nextLine();
       }
 
-      System.out.println("Hello, daniel");
-      stdin.close();
+      System.out.println("Hello, " + name);
+
     }
 }

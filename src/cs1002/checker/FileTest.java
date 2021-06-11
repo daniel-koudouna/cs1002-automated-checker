@@ -98,7 +98,8 @@ public class FileTest {
     ExecutionResult result = new ExecutionResult(diff, strace, caughtException);
 
     result.addAdvice(EarlyExitException.class, 
-    "Your program terminated early by calling System::exit or a similar method.", "");
+    "Your program terminated early by calling System::exit or a similar method.", 
+    "Avoid using System::exit in your program. Instead, you should \"return\" from your main method.");
 
     result.addAdvice(e -> {
       boolean isType = e.getClass() == NoSuchElementException.class;
