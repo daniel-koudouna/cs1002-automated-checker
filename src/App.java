@@ -17,6 +17,18 @@ public class App {
         throw new RuntimeException("Something went wrong!");
       }
 
+      if (name.equals("exit")) {
+        System.out.println("Hello, exit");
+        System.exit(2);
+      }
+
+      if(name.equals("eat")) {
+        stdin.nextLine();
+        stdin.nextLine();
+        stdin.nextLine();
+        stdin.nextLine();
+      }
+
       System.out.println("Hello, daniel");
       stdin.close();
     }

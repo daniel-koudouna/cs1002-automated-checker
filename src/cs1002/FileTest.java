@@ -65,84 +65,47 @@ public class FileTest {
     ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     System.setOut(new PrintStream(buffer));
 
+    boolean exitEarly = false;
+    String strace = null;
+    Class<? extends Exception> exceptionClass = null;
+
+    SecurityManager manager = System.getSecurityManager();
+    SecurityManager testManager = new TestSecurityManager();
+    System.setSecurityManager(testManager);
     try {
       main.apply(null);
+    } catch (SecurityException se) {
+      exitEarly = true;
     } catch (Exception e) {
+      exceptionClass = e.getClass();
       System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
-      String strace = e.toString();
+      strace = "\t" + e.toString();
       for (int i = 0; i < e.getStackTrace().length; i++) {
         StackTraceElement el = e.getStackTrace()[i];
         if (el.getClassName().equals(FileTest.class.getName())){
           break;
         }
         else {
-          strace += "\n\t at " + el.toString();
+          strace += "\n\t\t at " + el.toString();
         }
       }
-
-      fail("There was an exception in your java program. See the stack trace below: \n"
-       + strace + "\n\nThe rest of the stack trace is related to testing, and you may ignore it.\n");
     }
-
-
+    System.setSecurityManager(manager);
     System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
-    String content = buffer.toString();
 
-    int maxWidth = expected.lines()
-        .map(String::length)
-        .max(Integer::compare)
-        .orElse(0);
+    String actual = buffer.toString();
 
-    maxWidth = Integer.max(maxWidth, "Expected output".length());
+    OutputComparison diff = OutputComparison.from(expected, actual);
 
-    List<String> c = content.lines().collect(Collectors.toList());
-    List<String> ex = expected.lines().collect(Collectors.toList());
+    ExecutionResult result = new ExecutionResult(diff, strace, exceptionClass, exitEarly);
 
-    if (ex.size() > 0 && ex.get(ex.size() -1).equals("")) {
-      ex.remove(ex.size() - 1);
+    result.checkOutputMatches();
+    result.checkExceptions();
+    result.checkEarlyExit();
+
+
+    if (result.hasFailed()) {
+      fail(result.getDescription());
     }
-
-    int maxHeight = c.size() > ex.size() ? c.size() : ex.size();
-
-    System.out.println("Running test for file: " + inFile.getFileName());
-    System.out.println("  |     | " + String.format("%-" + (maxWidth + 2) + "s","Expected output") + " | " + "Actual output");
-    System.out.println("--|-----|-" + "-".repeat(maxWidth+2) + "-|-" + "-".repeat(maxWidth+2));
-
-    boolean passed = true;
-    int lineNum = 0;
-
-    for (int i = 0; i < maxHeight; i++) {
-      String exp = "===End of Output===";
-      String ac = "===End of Output===";
-      if (i < ex.size()) {
-        exp = ex.get(i);
-      }
-      if (i < c.size()) {
-        ac = c.get(i);
-      }
-      String symbol = " ";
-      if (!exp.equals(ac)) {
-        symbol = "*";
-        if (passed) {
-          passed = false;
-          lineNum = i+1;
-        }
-
-      }
-
-      String line = symbol + " | " + String.format("%3d", (i+1)) + " | " + String.format("%-" + (maxWidth + 2) + "s",exp) + " | " + ac;
-      System.out.println(line);
-    }
-
-    if (passed) {
-      System.out.println("Test passed!");
-    } else {
-      System.out.println("Test failed! First difference found in line " + lineNum);
-    }
-
-    System.out.println("");
-
-    assertLinesMatch(ex.stream(), content.lines());
-
   }
 }
