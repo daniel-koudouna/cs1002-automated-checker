@@ -70,7 +70,7 @@ public class OutputComparison {
           int col = 0;
           for (int j = 0; j < Math.min(exp.length(), ac.length()); j++) {
             if (exp.charAt(j) == ac.charAt(j)) {
-              col = j;
+              col = j + 1;
             } else {
               break;
             }
@@ -100,5 +100,5 @@ public class OutputComparison {
 
     return new OutputComparison(lines.toString(), lineDiff, expectedL, actualL);
   }
-  
+
 }

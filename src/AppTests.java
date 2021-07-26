@@ -9,6 +9,11 @@ public class AppTests {
     FileTest.run(App::main, "hello");
   }
 
+ @Test
+ public void testPartial() {
+   FileTest.run(App::main, "partial");
+ }
+
   @Test
   public void testFail() {
     FileTest.run(App::main, "test");
