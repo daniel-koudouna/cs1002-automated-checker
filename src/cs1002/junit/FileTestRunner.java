@@ -65,7 +65,7 @@ public class FileTestRunner {
     int filled = (int)(paddingSize*successes/(1.0*results.size()));
     int empty = paddingSize - filled;
 
-    String filledPadding = "█".repeat(filled);
+    String filledPadding = "|".repeat(filled);
     String emptyPadding = ".".repeat(empty);
     String footer = sum + filledPadding + emptyPadding + total;
 

@@ -14,8 +14,8 @@ The jar file will be built and placed in the `dist` directory along with the JUn
 
 In general, to run a JUnit test class:
 
-`java -cp [path to junit:path to testing.jar:path to your own files] org.junit.runner.JUnitCore [Your own tests java file]`
+`java -cp [path to junit:path to testing.jar:path to your own files] [Your own tests java file]`
 
 e.g, in the project:
 
-`java -cp temp:lib/junit.jar:dist/testing.jar org.junit.runner.JUnitCore AppTests`
+`java -cp temp:lib/junit.jar:dist/testing.jar AppTests`
